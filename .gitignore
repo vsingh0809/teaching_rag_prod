@@ -1,0 +1,45 @@
+# Secrets — NEVER commit
+.env
+.env.*
+*.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+# WHY KEEP uv.lock: lock file must be committed
+# so every developer and CI gets identical deps
+# DO NOT add uv.lock here
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.pdf
+tmp/
+logs/
