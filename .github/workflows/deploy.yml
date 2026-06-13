@@ -74,7 +74,17 @@ jobs:
           APP_URL=$(az containerapp show \
             --name ${{ env.AZURE_CONTAINER_APP }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --query properties.configuration.ingress.fqdn \
+            --query "properties.configuration.ingress.fqdn" \
             --output tsv)
+
+          # WHY THIS CHECK:
+          # If APP_URL is empty, curl hits garbage URL and gives misleading error
+          # This gives you a clear message about what actually failed
+          if [ -z "$APP_URL" ]; then
+            echo "❌ APP_URL is empty — ingress not enabled on Container App"
+            exit 1
+          fi
+
+          echo "🌐 App URL: https://${APP_URL}"
           curl -f https://${APP_URL}/health || exit 1
           echo "✅ Deployed at https://${APP_URL}"
