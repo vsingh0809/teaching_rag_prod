@@ -1,7 +1,7 @@
 # deploy.yml
 # WHAT: On every push to main → build → push to ACR → deploy to Container Apps
 # WHY ONLY MAIN: feature branches shouldn't auto-deploy to production
-#                developers test locally, main = production-ready code only
+#               developers test locally, main = production-ready code only
 
 name: Build and Deploy RAG API
 
@@ -13,6 +13,13 @@ on:
   # Catches broken code before it hits main
   pull_request:
     branches: [main]
+
+# ── OIDC SECURITY PERMISSIONS ──────────────────────────────────────────
+# WHY: Required to allow GitHub to request a secure identity token from Azure
+# Without id-token: write, step 2 (Azure Login) will throw a 403 / token error
+permissions:
+  id-token: write
+  contents: read
 
 env:
   # WHY ENV AT TOP LEVEL:
@@ -75,7 +82,7 @@ jobs:
         if: github.event_name == 'push'
         run: |
           az containerapp update \
-            --name ${{ env.AZURE_CONTAINER_APP }} \
+            -name ${{ env.AZURE_CONTAINER_APP }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
