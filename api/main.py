@@ -4,8 +4,8 @@ import os
 from dotenv import load_dotenv
 from ingestion.ingest import ingest
 from retrieval.retriever import query
-from client.embeddings import embedding_client
-from client.llm import llm_client
+from clients.embeddings import embedding_client
+from clients.llm import llm_client
 from contextlib import asynccontextmanager
 from fastapi import FastAPI,HTTPException, UploadFile, File
 import shutil
