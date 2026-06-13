@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  ACR_NAME: ragregistry
+  ACR_NAME: ragragistry
   AZURE_CONTAINER_APP: rag-api
   AZURE_RESOURCE_GROUP: rag-rag
   IMAGE_NAME: rag-api
