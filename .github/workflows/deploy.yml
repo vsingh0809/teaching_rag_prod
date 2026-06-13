@@ -65,7 +65,16 @@ jobs:
           az containerapp update \
             --name ${{ env.AZURE_CONTAINER_APP }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --set-env-vars \
+              "AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}" \
+              "AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}" \
+              "AZURE_OPENAI_API_VERSION=${{ secrets.AZURE_OPENAI_API_VERSION }}" \
+              "AZURE_EMBEDDING_DEPLOYMENT=${{ secrets.AZURE_EMBEDDING_DEPLOYMENT }}" \
+              "AZURE_CHAT_DEPLOYMENT=${{ secrets.AZURE_CHAT_DEPLOYMENT }}" \
+              "QDRANT_URL=${{ secrets.QDRANT_URL }}" \
+              "QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}" \
+              "QDRANT_COLLECTION=${{ secrets.QDRANT_COLLECTION }}"
 
       - name: Health check
         if: github.event_name == 'push'
