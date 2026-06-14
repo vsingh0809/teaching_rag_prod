@@ -49,7 +49,20 @@ app= FastAPI(
 
 @app.get("/health")
 async def health():
-    return{"status":"healthy","clients_ready":bool(app_state)}
+    # WHY CHECK CLIENTS NOT JUST RETURN OK:
+    # If Qdrant or Azure OpenAI is down, health should reflect that
+    # Azure uses this to decide whether to restart your container
+    issues = []
+    
+    if not app_state.get("embeddings"):
+        issues.append("embeddings client not ready")
+    if not app_state.get("llm"):
+        issues.append("llm client not ready")
+    
+    if issues:
+        raise HTTPException(status_code=503, detail={"status": "unhealthy", "issues": issues})
+    
+    return {"status": "healthy", "clients_ready": True}
 
 #-------INGEST----------------------------------
 @app.post("/ingest")
