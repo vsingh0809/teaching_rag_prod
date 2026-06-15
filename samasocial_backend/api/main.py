@@ -97,10 +97,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
     allow_origin_regex=os.getenv(
-        "FRONTEND_ORIGIN_REGEX", r"https://.*\.vercel\.app"
+        "FRONTEND_ORIGIN_REGEX", r"https://.*\.onrender\.com"
     ),
     allow_credentials=False,
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_methods=["*"],      # ← CHANGE TO * — allows all methods including OPTIONS
     allow_headers=["*"],
 )
 
