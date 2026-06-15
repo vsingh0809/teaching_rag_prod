@@ -18,6 +18,10 @@ from ingestion.ingest import ingest_source
 from retrieval.retriever import query, stream_query, get_session_sources
 from clients.embeddings import embedding_client
 from clients.llm import llm_client
+from models.query_request import QueryRequest
+from models.query_response import QueryResponse
+from models.quiz_request import QuizRequest
+from models.url_request import URLRequest
 
 load_dotenv()
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -38,6 +42,7 @@ def ensure_qdrant_indexes():
             url=os.getenv("QDRANT_URL"),
             api_key=os.getenv("QDRANT_API_KEY"),
         )
+
 
         client.create_payload_index(
             collection_name=os.getenv("QDRANT_COLLECTION"),
@@ -103,34 +108,6 @@ app.add_middleware(
     allow_methods=["*"],      # ← CHANGE TO * — allows all methods including OPTIONS
     allow_headers=["*"],
 )
-
-
-# ══════════════════════════════════════════════════════════════════════
-# MODELS
-# ══════════════════════════════════════════════════════════════════════
-class QueryRequest(BaseModel):
-    question: str
-    session_id: str = ""
-    stream: bool = False          # WHY: client chooses streaming or not
-
-
-class QueryResponse(BaseModel):
-    answer: str
-    sources: list[str] = []
-    citations: list[str] = []     # ASSIGNMENT: "from slide 4", "at 3:22"
-    session_id: str
-    status: str = "success"
-
-
-class URLRequest(BaseModel):
-    url: str
-    source_type: str              # "youtube" or "url"
-    session_id: str = ""
-
-
-class QuizRequest(BaseModel):
-    session_id: str
-    num_questions: int = 5        # ASSIGNMENT BONUS: quiz mode
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -291,13 +268,21 @@ async def query_endpoint(request: QueryRequest):
 # ══════════════════════════════════════════════════════════════════════
 @app.delete("/session/{session_id}")
 async def clear_session(session_id: str):
-    """Clear conversation history for a session."""
-    from retrieval.retriever import session_sources, session_store
-    if session_id in session_store:
-        del session_store[session_id]
-    if session_id in session_sources:
-        del session_sources[session_id]
-    return {"status": "cleared", "session_id": session_id}
+    """
+    Clear session = wipe entire collection + all memory.
+    Single user app — clear means complete fresh start.
+    """
+    from retrieval.retriever import clear_session_data
+    try:
+        result = clear_session_data(session_id)
+        return {
+            "status": "cleared",
+            "points_deleted": result["points_deleted"],
+            "session_id": session_id,
+        }
+    except Exception as e:
+        log.error(f"Clear session error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to clear session.")
 
 
 @app.get("/session/{session_id}/sources")
