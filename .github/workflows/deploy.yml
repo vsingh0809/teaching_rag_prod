@@ -55,8 +55,8 @@ jobs:
           # WHY context points to backend folder:
           # Monorepo structure — backend and frontend in separate folders
           # Docker only needs backend code to build API image
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: ./samasocial_backend
+          file: ./samasocial_backend/Dockerfile
           push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
